@@ -21,10 +21,11 @@ angular.module('angular-tour.tour', [])
  * TourController
  * the logic for the tour, which manages all the steps
  */
-.controller('TourController', function($scope, orderedList) {
+.controller('TourController', function($rootScope, $scope, orderedList) {
     var self = this,
         steps = self.steps = orderedList(),
-        firstCurrentStepChange = true;
+        firstCurrentStepChange = true,
+        stateChangeStartEventListener;
 
     // we'll pass these in from the directive
     self.postTourCallback = angular.noop;
@@ -96,6 +97,14 @@ angular.module('angular-tour.tour', [])
     $scope.closeTour = function() {
         self.cancelTour();
     };
+
+    stateChangeStartEventListener = $rootScope.$on('$stateChangeStart', function() {
+        self.cancelTour();
+    });
+
+    $scope.$on('$destroy', function() {
+        stateChangeStartEventListener();
+    });
 })
 
 /**

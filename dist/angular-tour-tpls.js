@@ -1,6 +1,6 @@
 /**
  * An AngularJS directive for showcasing features of your website
- * @version v0.2.5 - 2015-12-10
+ * @version v0.2.5 - 2017-10-04
  * @link https://github.com/DaftMonk/angular-tour
  * @author Tyler Henkel
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -29,10 +29,11 @@
     useSourceScope: false,
     containerElement: 'body'
   }).controller('TourController', [
+    '$rootScope',
     '$scope',
     'orderedList',
-    function ($scope, orderedList) {
-      var self = this, steps = self.steps = orderedList(), firstCurrentStepChange = true;
+    function ($rootScope, $scope, orderedList) {
+      var self = this, steps = self.steps = orderedList(), firstCurrentStepChange = true, stateChangeStartEventListener;
       // we'll pass these in from the directive
       self.postTourCallback = angular.noop;
       self.postStepCallback = angular.noop;
@@ -91,6 +92,12 @@
       $scope.closeTour = function () {
         self.cancelTour();
       };
+      stateChangeStartEventListener = $rootScope.$on('$stateChangeStart', function () {
+        self.cancelTour();
+      });
+      $scope.$on('$destroy', function () {
+        stateChangeStartEventListener();
+      });
     }
   ]).directive('tour', [
     '$parse',
